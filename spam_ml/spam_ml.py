@@ -15,25 +15,25 @@ def import_train_data(filename):
     return rawData
 
 def sigmoid(z):
-    if z > 0.0:
-        return 1.0 / (1.0 + math.exp(-z))
-    else:
-        z = math.exp(z)
-    return z / (1.0 + z)
+    return 1.0 / (1.0 + math.exp(-z))
+
 
 def f(w, b, x):
     p = sigmoid((w * x).sum() + b)
     if p >= 0.5:
-        return 0
-    if p < 0.5:
         return 1
+    if p < 0.5:
+        return 0
 
 def f1(w, b, x):
-    return sigmoid((w * x).sum() + b)
+    p = sigmoid((w * x).sum() + b)
+    if p == 1:
+        p = 0.99999999
+    return p
+
 
 
 def max_likelihood(data):
-    b = np.mat(np.zeros(57))
     N = len(data)
     count = 0.0
     miu0 = np.mat(np.zeros(57))
@@ -41,7 +41,7 @@ def max_likelihood(data):
     thegma0 = np.mat(np.zeros([57, 57]))
     thegma1 = np.mat(np.zeros([57, 57]))
     for line in data:
-        if line[1] == 0:
+        if line[1] == 1:
             miu0 += np.mat(line[0])
             count += 1
         else:
@@ -62,26 +62,26 @@ def max_likelihood(data):
     #print w.shape,b.shape,thegma.shape,miu0.shape,miu1.shape,miu0.T
     return np.array(w),b[0,0]
 
-def cross_entropy(w,b):
+def cross_entropy(w,b,trainset):
     loss = 0
     for eachmail in trainset:
         x = eachmail[0]
         fx = f1(w,b,x)
         label = eachmail[1]
-        loss += -(label*math.log(fx)+(1-label)*math.log(fx))
+        loss += -(label*math.log(fx)+(1-label)*math.log(1-fx))
     return loss
 
 def gradient(w, b, x, y):
     y_ = f1(w, b, x) - y
     return y_ * x, y_
 
-def adagrad(iteration_num,l_rate):
+def adagrad(iteration_num,l_rate,trainset):
     w0 = (np.random.random(57) - 0.5)/1000
     b0 = (np.random.random() -0.5)/1000
     gw_acc = np.zeros(57)
     gb_acc = 0.0
     for i in range(iteration_num):
-        print cross_entropy(w0,b0)
+        print cross_entropy(w0,b0,trainset)
         gw_ada = np.zeros(57)
         gb_ada = 0.0
         for mail in trainset:
@@ -95,7 +95,7 @@ def adagrad(iteration_num,l_rate):
         b0 -= l_rate*gb_ada/np.sqrt(gb_acc)
     return w0,b0
 
-def accuracy(w,b):
+def accuracy(w,b,trainset):
     rightsum = 0.0
     count = 0
     for eachmail in trainset:
@@ -109,10 +109,10 @@ def accuracy(w,b):
 
 trainset = import_train_data("spam_data\spam_train.csv")
 w,b = max_likelihood(trainset)
-w0,b0 = adagrad(1000,0.01)
+w0,b0 = adagrad(1000,0.01,trainset)
 
 
-print cross_entropy(w,b)
-print accuracy(w,b)
-print cross_entropy(w0,b0)
-print 1 - accuracy(w0,b0)
+print cross_entropy(w,b,trainset)
+print accuracy(w,b,trainset)
+print cross_entropy(w0,b0,trainset)
+print accuracy(w0,b0,trainset)
