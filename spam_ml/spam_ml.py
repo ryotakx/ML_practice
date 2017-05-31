@@ -81,7 +81,7 @@ def adagrad(iteration_num,l_rate,trainset):
     gw_acc = np.zeros(57)
     gb_acc = 0.0
     for i in range(iteration_num):
-        print cross_entropy(w0,b0,trainset)
+        print (cross_entropy(w0,b0,trainset))
         gw_ada = np.zeros(57)
         gb_ada = 0.0
         for mail in trainset:
@@ -112,7 +112,7 @@ w,b = max_likelihood(trainset)
 w0,b0 = adagrad(1000,0.01,trainset)
 
 
-print cross_entropy(w,b,trainset)
-print accuracy(w,b,trainset)
-print cross_entropy(w0,b0,trainset)
-print accuracy(w0,b0,trainset)
+print (cross_entropy(w,b,trainset))
+print (accuracy(w,b,trainset))
+print (cross_entropy(w0,b0,trainset))
+print (accuracy(w0,b0,trainset))
